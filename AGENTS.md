@@ -114,6 +114,13 @@ These scripts are automatically run by `azd provision` via the `azure.yaml` post
 - Uses: uv for setup, requires models: read permission
 - Sets: `API_HOST=github`, `GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}`, `GITHUB_MODEL=openai/gpt-4o-mini`
 
+**`azure-dev.yml` - Azure Infrastructure Provisioning and Deployment:**
+- Runs on: push to main, workflow_dispatch
+- Provisions and deploys Azure infrastructure using Azure Developer CLI (azd)
+- Uses: Azure federated credentials (OIDC) for authentication
+- Required variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_ENV_NAME`, `AZURE_LOCATION`
+- Steps: checkout, install azd, login with federated credentials, provision infrastructure, deploy application
+
 ### Dev Container Files (.devcontainer/)
 
 - `.devcontainer/devcontainer.json` - Default dev container (Azure OpenAI setup with azd)
