@@ -39,10 +39,12 @@ En todos los ejemplos se declara una lista de funciones en el parámetro `tools`
 
 Scripts (en orden de capacidad):
 
-1. [`function_calling_basic.py`](../function_calling_basic.py): Declara una sola función `lookup_weather` y muestra la llamada (si existe) o el contenido normal.
+1. [`function_calling_basic.py`](../function_calling_basic.py): Declara una sola función `lookup_weather` y muestra la llamada (si existe) o el contenido normal (no ejecuta la función).
 2. [`function_calling_call.py`](../function_calling_call.py): Ejecuta `lookup_weather` si el modelo la solicita, parseando los argumentos JSON.
 3. [`function_calling_extended.py`](../function_calling_extended.py): Hace el ciclo completo: tras ejecutar la función, añade un mensaje de rol `tool` con el resultado y vuelve a consultar al modelo para incorporar los datos reales.
-4. [`function_calling_multiple.py`](../function_calling_multiple.py): Expone múltiples funciones (`lookup_weather`, `lookup_movies`) para observar cómo el modelo elige y cómo podrían devolverse múltiples llamadas.
+4. [`function_calling_extended_errors.py`](../function_calling_extended_errors.py): Igual que el ejemplo extendido pero con manejo robusto de errores (JSON malformado, herramienta inexistente, excepciones de ejecución, serialización JSON de respaldo).
+5. [`function_calling_parallel.py`](../function_calling_parallel.py): Demuestra el modelo devolviendo múltiples llamadas a herramientas en una sola respuesta
+6. [`function_calling_while_loop.py`](../function_calling_while_loop.py): Bucle conversacional iterativo que sigue ejecutando llamadas secuenciales (con manejo de errores) hasta que el modelo da una respuesta final en lenguaje natural.
 
 Debe usarse un modelo que soporte function calling (por ejemplo, `gpt-4o`, `gpt-4o-mini`, etc.). Algunos modelos locales o antiguos no soportan `tools`.
 
