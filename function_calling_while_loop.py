@@ -132,9 +132,7 @@ while True:
         parallel_tool_calls=False,  # ensure sequential tool calls
     )
 
-    choice = response.choices[0]
-    assistant_message = choice.message
-
+    assistant_message = response.choices[0].message
     # If the assistant returned standard content with no tool calls, we're done.
     if not assistant_message.tool_calls:
         print("Assistant:")
@@ -156,22 +154,9 @@ while True:
         raw_args = tool_call.function.arguments or "{}"
         print(f"Tool request: {fn_name}({raw_args})")
         target_tool = tool_mapping.get(fn_name)
-        if not target_tool:
-            error_output = f"ERROR: No implementation registered for tool '{fn_name}'"
-            tool_result = error_output
-        else:
-            try:
-                parsed_args = json.loads(raw_args) if raw_args.strip() else {}
-            except json.JSONDecodeError:  # malformed JSON from model
-                parsed_args = {}
-            try:
-                tool_result = target_tool(**parsed_args)
-            except Exception as e:  # safeguard tool execution
-                tool_result = f"Tool execution error in {fn_name}: {e}"
-
-        # Serialize the tool output as a JSON string
+        parsed_args = json.loads(raw_args)
+        tool_result = target_tool(**parsed_args)
         tool_result_str = json.dumps(tool_result)
-
         # Provide the tool output back to the model
         messages.append(
             {

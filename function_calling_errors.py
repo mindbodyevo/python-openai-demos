@@ -1,15 +1,3 @@
-"""Extended function calling example with robust error handling.
-
-This script is similar to the simple extended example but adds:
- - Safe JSON argument parsing (malformed JSON won't crash loop)
- - Tool existence validation (graceful error if model asks for unknown tool)
- - Exception safety around tool execution
- - JSON serialization of tool outputs for model consumption
-
-It demonstrates a single round-trip (not a while loop) but with the
-same safeguards implemented in `function_calling_while_loop.py`.
-"""
-
 import json
 import os
 from collections.abc import Callable
@@ -49,47 +37,61 @@ else:
 # ---------------------------------------------------------------------------
 # Tool implementation(s)
 # ---------------------------------------------------------------------------
-def lookup_weather(city_name: str | None = None, zip_code: str | None = None) -> dict[str, Any]:
-    """Lookup the weather for a given city name or zip code.
-
-    Returns a simple deterministic stub so the focus is on tool call flow.
-    """
-    location = city_name or zip_code or "unknown"
-    return {
-        "location": location,
-        "weather": "sunny",
-        "temperature_f": 75,
-        "advice": "Great day to be outside!",
-    }
+def search_database(search_query: str, price_filter: dict | None = None) -> dict[str, str]:
+    """Search database for relevant products based on user query"""
+    if not search_query:
+        raise ValueError("search_query is required")
+    if price_filter:
+        if "comparison_operator" not in price_filter or "value" not in price_filter:
+            raise ValueError("Both comparison_operator and value are required in price_filter")
+        if price_filter["comparison_operator"] not in {">", "<", ">=", "<=", "="}:
+            raise ValueError("Invalid comparison_operator in price_filter")
+        if not isinstance(price_filter["value"], int | float):
+            raise ValueError("Value in price_filter must be a number")
+    return [{"id": "123", "name": "Example Product", "price": 19.99}]
 
 
 tool_mapping: dict[str, Callable[..., Any]] = {
-    "lookup_weather": lookup_weather,
+    "search_database": search_database,
 }
 
 tools = [
     {
         "type": "function",
         "function": {
-            "name": "lookup_weather",
-            "description": "Lookup the weather for a given city name or zip code.",
+            "name": "search_database",
+            "description": "Search database for relevant products based on user query",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "city_name": {"type": "string", "description": "The city name"},
-                    "zip_code": {"type": "string", "description": "The zip code"},
+                    "search_query": {
+                        "type": "string",
+                        "description": "Query string to use for full text search, e.g. 'red shoes'",
+                    },
+                    "price_filter": {
+                        "type": "object",
+                        "description": "Filter search results based on price of the product",
+                        "properties": {
+                            "comparison_operator": {
+                                "type": "string",
+                                "description": "Operator to compare the column value, either '>', '<', '>=', '<=', '='",  # noqa
+                            },
+                            "value": {
+                                "type": "number",
+                                "description": "Value to compare against, e.g. 30",
+                            },
+                        },
+                    },
                 },
-                "strict": True,
-                "additionalProperties": False,
+                "required": ["search_query"],
             },
         },
     }
 ]
 
-
 messages: list[dict[str, Any]] = [
-    {"role": "system", "content": "You are a weather chatbot."},
-    {"role": "user", "content": "is it sunny in berkeley CA?"},
+    {"role": "system", "content": "You are a product search assistant."},
+    {"role": "user", "content": "Find me a red shirt under $20."},
 ]
 
 print(f"Model: {MODEL_NAME} on Host: {API_HOST}\n")
