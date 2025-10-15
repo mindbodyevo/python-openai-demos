@@ -60,11 +60,11 @@ python -m pip install -r requirements-rag.txt
 
 Then run the scripts (in order of increasing complexity):
 
-* [`rag_csv.py`](./rag.py): Retrieves matching results from a CSV file and uses them to answer user's question.
+* [`rag_csv.py`](./rag_csv.py): Retrieves matching results from a CSV file and uses them to answer user's question.
 * [`rag_multiturn.py`](./rag_multiturn.py): The same idea, but with a back-and-forth chat interface using `input()` which keeps track of past messages and sends them with each chat completion call.
 * [`rag_queryrewrite.py`](./rag_queryrewrite.py): Adds a query rewriting step to the RAG process, where the user's question is rewritten to improve the retrieval results.
-* [`rag_documents_ingestion.py`](./rag_ingestion.py): Ingests PDFs by using pymupdf to convert to markdown, then using Langchain to split into chunks, then using OpenAI to embed the chunks, and finally storing in a local JSON file.
-* [`rag_documents_flow.py`](./rag_pdfs.py): A RAG flow that retrieves matching results from the local JSON file created by `rag_documents_ingestion.py`.
+* [`rag_documents_ingestion.py`](./rag_documents_ingestion.py): Ingests PDFs by using pymupdf to convert to markdown, then using Langchain to split into chunks, then using OpenAI to embed the chunks, and finally storing in a local JSON file.
+* [`rag_documents_flow.py`](./rag_documents_flow.py): A RAG flow that retrieves matching results from the local JSON file created by `rag_documents_ingestion.py`.
 * [`rag_documents_hybrid.py`](./rag_documents_hybrid.py): A RAG flow that implements a hybrid retrieval with both vector and keyword search, merging with Reciprocal Rank Fusion (RRF), and semantic re-ranking with a cross-encoder model.
 
 ## Structured outputs
