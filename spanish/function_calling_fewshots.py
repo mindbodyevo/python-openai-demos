@@ -107,10 +107,7 @@ messages: list[dict[str, Any]] = [
             {
                 "id": "call_abc123",
                 "type": "function",
-                "function": {
-                    "name": "search_database",
-                    "arguments": '{"search_query":"equipo escalada exterior"}'
-                }
+                "function": {"name": "search_database", "arguments": '{"search_query":"equipo escalada exterior"}'},
             }
         ],
     },
@@ -130,8 +127,8 @@ messages: list[dict[str, Any]] = [
                 "type": "function",
                 "function": {
                     "name": "search_database",
-                    "arguments": '{"search_query":"tenis","price_filter":{"comparison_operator":"<","value":50}}'
-                }
+                    "arguments": '{"search_query":"tenis","price_filter":{"comparison_operator":"<","value":50}}',
+                },
             }
         ],
     },
