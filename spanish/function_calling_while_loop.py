@@ -138,23 +138,10 @@ while True:
         raw_args = tool_call.function.arguments or "{}"
         print(f"Solicitud de herramienta: {fn_name}({raw_args})")
         target_tool = tool_mapping.get(fn_name)
-        if not target_tool:
-            tool_result: Any = f"ERROR: No hay implementación registrada para '{fn_name}'"
-        else:
-            try:
-                parsed_args = json.loads(raw_args) if raw_args.strip() else {}
-            except json.JSONDecodeError:
-                parsed_args = {}
-            try:
-                tool_result = target_tool(**parsed_args)
-            except Exception as e:  # noqa: BLE001 - demostración educativa
-                tool_result = f"Error ejecutando {fn_name}: {e}"
-
-        try:
-            tool_result_str = json.dumps(tool_result, ensure_ascii=False)
-        except Exception:  # noqa: BLE001
-            tool_result_str = json.dumps({"resultado": str(tool_result)}, ensure_ascii=False)
-
+        parsed_args = json.loads(raw_args)
+        tool_result = target_tool(**parsed_args)
+        tool_result_str = json.dumps(tool_result)
+        # Agrega la respuesta de la herramienta a la conversación
         messages.append(
             {
                 "role": "tool",
