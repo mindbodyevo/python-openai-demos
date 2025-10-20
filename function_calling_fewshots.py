@@ -93,31 +93,42 @@ messages: list[dict[str, Any]] = [
     {"role": "system", "content": "You are a product search assistant."},
     {"role": "user", "content": "good options for climbing gear that can be used outside?"},
     {
-        "id": "madeup",
-        "call_id": "call_abc123",
-        "name": "search_database",
-        "arguments": '{"search_query":"climbing gear outside"}',
-        "type": "function_call",
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+            {
+                "id": "call_abc123",
+                "type": "function",
+                "function": {"name": "search_database", "arguments": '{"search_query":"climbing gear outside"}'},
+            }
+        ]
     },
     {
-        "id": "madeupoutput",
-        "call_id": "call_abc123",
-        "output": "Search results for climbing gear that can be used outside: ...",
-        "type": "function_call_output",
+        "role": "tool",
+        "tool_call_id": "call_abc123",
+        "name": "search_database",
+        "content": "Search results for climbing gear that can be used outside: ...",
     },
     {"role": "user", "content": "are there any shoes less than $50?"},
     {
-        "id": "madeup",
-        "call_id": "call_abc456",
-        "name": "search_database",
-        "arguments": '{"search_query":"shoes","price_filter":{"comparison_operator":"<","value":50}}',
-        "type": "function_call",
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+            {
+                "id": "call_abc456",
+                "type": "function",
+                "function": {
+                    "name": "search_database",
+                    "arguments": '{"search_query":"tenis","price_filter":{"comparison_operator":"<","value":50}}',
+                },
+            }
+        ],
     },
     {
-        "id": "madeupoutput",
-        "call_id": "call_abc456",
-        "output": "Search results for shoes cheaper than 50: ...",
-        "type": "function_call_output",
+        "role": "tool",
+        "tool_call_id": "call_abc456",
+        "name": "search_database",
+        "content": "Search results for shoes cheaper than 50: ...",
     },
     {"role": "user", "content": "Find me a red shirt under $20."},
 ]

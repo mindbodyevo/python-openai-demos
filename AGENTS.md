@@ -32,7 +32,7 @@ All example scripts are located in the root directory. They follow a consistent 
 - `function_calling_basic.py` - Single function declaration, prints tool calls (no execution)
 - `function_calling_call.py` - Executes the function once if the model requests it
 - `function_calling_extended.py` - Full round-trip: executes, returns tool output, gets final answer
-- `function_calling_extended_errors.py` - Same as extended but with robust error handling (malformed JSON args, missing tool, tool exceptions, JSON serialization)
+- `function_calling_errors.py` - Same as extended but with robust error handling (malformed JSON args, missing tool, tool exceptions, JSON serialization)
 - `function_calling_parallel.py` - Shows model requesting multiple tools in one response
 - `function_calling_while_loop.py` - Conversation loop that keeps executing sequential tool calls until the model produces a final natural language answer (with error handling)
 
