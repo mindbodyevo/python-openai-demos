@@ -36,7 +36,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "lookup_weather",
-            "description": "Buscar el clima para un nombre de ciudad o código postal dado.",
+            "description": "Busca el clima para un nombre de ciudad o código postal dado.",
             "parameters": {
                 "type": "object",
                 "properties": {

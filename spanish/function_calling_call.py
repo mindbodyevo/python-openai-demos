@@ -33,7 +33,7 @@ else:
 
 
 def lookup_weather(city_name=None, zip_code=None):
-    """Buscar el clima para un nombre de ciudad o código postal dado."""
+    """Busca el clima para un nombre de ciudad o código postal dado."""
     print(f"Buscando el clima para {city_name or zip_code}...")
     return "¡Está soleado!"
 
@@ -43,7 +43,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "lookup_weather",
-            "description": "Buscar el clima para un nombre de ciudad o código postal dado.",
+            "description": "Busca el clima para un nombre de ciudad o código postal dado.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -67,7 +67,7 @@ response = client.chat.completions.create(
     model=MODEL_NAME,
     messages=[
         {"role": "system", "content": "Eres un chatbot del clima."},
-        {"role": "user", "content": "¿está soleado en esa pequeña ciudad cerca de Sydney donde vive Anthony?"},
+        {"role": "user", "content": "¿está soleado en Berkeley, California?"},
     ],
     tools=tools,
     tool_choice="auto",
@@ -81,3 +81,5 @@ if response.choices[0].message.tool_calls:
     arguments = json.loads(tool_call.function.arguments)
     if function_name == "lookup_weather":
         lookup_weather(**arguments)
+else:
+    print(response.choices[0].message.content)
