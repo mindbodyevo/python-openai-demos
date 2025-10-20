@@ -7,7 +7,7 @@ import azure.identity
 import openai
 from dotenv import load_dotenv
 
-# Setup the OpenAI client to use either Azure, OpenAI.com, or Ollama API
+# Setup del cliente OpenAI para usar Azure, OpenAI.com, Ollama o GitHub Models (según vars de entorno)
 load_dotenv(override=True)
 API_HOST = os.getenv("API_HOST", "github")
 
@@ -35,20 +35,28 @@ else:
 
 
 # ---------------------------------------------------------------------------
-# Tool implementation(s)
+# Implementación de la tool(s)
 # ---------------------------------------------------------------------------
 def search_database(search_query: str, price_filter: dict | None = None) -> dict[str, str]:
-    """Search database for relevant products based on user query"""
+    """Busca productos relevantes en la base de datos según el query del usuario.
+
+    search_query: texto para buscar (ej: "equipo escalada" o "tenis rojos").
+    price_filter: objeto opcional con:
+      - comparison_operator: uno de ">", "<", ">=", "<=", "="
+      - value: número límite.
+
+    Retorna lista dummy para mostrar el flujo de function calling.
+    """
     if not search_query:
-        raise ValueError("search_query is required")
+        raise ValueError("search_query es requerido")
     if price_filter:
         if "comparison_operator" not in price_filter or "value" not in price_filter:
-            raise ValueError("Both comparison_operator and value are required in price_filter")
+            raise ValueError("Se requieren comparison_operator y value en price_filter")
         if price_filter["comparison_operator"] not in {">", "<", ">=", "<=", "="}:
-            raise ValueError("Invalid comparison_operator in price_filter")
+            raise ValueError("comparison_operator inválido en price_filter")
         if not isinstance(price_filter["value"], int | float):
-            raise ValueError("Value in price_filter must be a number")
-    return [{"id": "123", "name": "Example Product", "price": 19.99}]
+            raise ValueError("value en price_filter debe ser numérico")
+    return [{"id": "123", "name": "Producto Ejemplo", "price": 19.99}]
 
 
 tool_mapping: dict[str, Callable[..., Any]] = {
@@ -60,25 +68,25 @@ tools = [
         "type": "function",
         "function": {
             "name": "search_database",
-            "description": "Search database for relevant products based on user query",
+            "description": "Busca productos relevantes según el query del usuario",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "search_query": {
                         "type": "string",
-                        "description": "Query string to use for full text search, e.g. 'red shoes'",
+                        "description": "Texto (query) para búsqueda full text, ej: 'tenis rojos'",
                     },
                     "price_filter": {
                         "type": "object",
-                        "description": "Filter search results based on price of the product",
+                        "description": "Filtra resultados según el precio del producto",
                         "properties": {
                             "comparison_operator": {
                                 "type": "string",
-                                "description": "Operator to compare the column value, either '>', '<', '>=', '<=', '='",  # noqa
+                                "description": "Operador para comparar el valor de la columna: '>', '<', '>=', '<=', '='",  # noqa
                             },
                             "value": {
                                 "type": "number",
-                                "description": "Value to compare against, e.g. 30",
+                                "description": "Valor límite para comparar, ej: 30",
                             },
                         },
                     },
@@ -90,19 +98,19 @@ tools = [
 ]
 
 messages: list[dict[str, Any]] = [
-    {"role": "system", "content": "You are a product search assistant."},
-    {"role": "user", "content": "good options for climbing gear that can be used outside?"},
+    {"role": "system", "content": "Eres un assistant que ayuda a buscar productos."},
+    {"role": "user", "content": "¿Buenas opciones de equipo de escalada para usar afuera?"},
     {
         "role": "assistant",
-        "content": None,
+        "content": "",
         "tool_calls": [
             {
                 "id": "call_abc123",
                 "type": "function",
                 "function": {
                     "name": "search_database",
-                    "arguments": '{"search_query":"climbing gear outside"}',
-                },
+                    "arguments": '{"search_query":"equipo escalada exterior"}'
+                }
             }
         ],
     },
@@ -110,24 +118,20 @@ messages: list[dict[str, Any]] = [
         "role": "tool",
         "tool_call_id": "call_abc123",
         "name": "search_database",
-        "content": '{"results": [{"id": "1", "name": "Climbing Rope", "price": 45.99}, {"id": "2", "name": "Carabiners Set", "price": 25.50}]}',
+        "content": json.dumps({"result": "Resultados de búsqueda para equipo de escalada exterior: ..."}),
     },
+    {"role": "user", "content": "¿Hay tenis por menos de $50?"},
     {
         "role": "assistant",
-        "content": "I found some great climbing gear options for outdoor use, including climbing ropes and carabiner sets.",
-    },
-    {"role": "user", "content": "are there any shoes less than $50?"},
-    {
-        "role": "assistant",
-        "content": None,
+        "content": "",
         "tool_calls": [
             {
                 "id": "call_abc456",
                 "type": "function",
                 "function": {
                     "name": "search_database",
-                    "arguments": '{"search_query":"shoes","price_filter":{"comparison_operator":"<","value":50}}',
-                },
+                    "arguments": '{"search_query":"tenis","price_filter":{"comparison_operator":"<","value":50}}'
+                }
             }
         ],
     },
@@ -135,18 +139,14 @@ messages: list[dict[str, Any]] = [
         "role": "tool",
         "tool_call_id": "call_abc456",
         "name": "search_database",
-        "content": '{"results": [{"id": "10", "name": "Trail Running Shoes", "price": 42.00}, {"id": "11", "name": "Approach Shoes", "price": 48.99}]}',
+        "content": json.dumps({"result": "Resultados de búsqueda para tenis más baratos que 50: ..."}),
     },
-    {
-        "role": "assistant",
-        "content": "Yes! I found trail running shoes for $42 and approach shoes for $48.99, both under $50.",
-    },
-    {"role": "user", "content": "Find me a red shirt under $20."},
+    {"role": "user", "content": "Búscame una camiseta roja por menos de $20."},
 ]
 
-print(f"Model: {MODEL_NAME} on Host: {API_HOST}\n")
+print(f"Modelo: {MODEL_NAME} en Host: {API_HOST}\n")
 
-# First model response (may include tool call)
+# Primera respuesta del model (puede incluir tool call)
 response = client.chat.completions.create(
     model=MODEL_NAME,
     messages=messages,
@@ -157,12 +157,12 @@ response = client.chat.completions.create(
 
 assistant_msg = response.choices[0].message
 
-# If no tool calls were requested, just print the answer.
+# Si el model no pidió ninguna tool call, imprime la respuesta.
 if not assistant_msg.tool_calls:
     print("Assistant:")
     print(assistant_msg.content)
 else:
-    # Append assistant message including tool call metadata
+    # Agrega el mensaje del assistant con metadata de las tool calls
     messages.append(
         {
             "role": "assistant",
@@ -171,7 +171,7 @@ else:
         }
     )
 
-    # Process each requested tool sequentially (though usually one here)
+    # Procesa cada tool pedida de forma secuencial (normalmente solo una aquí)
     for tool_call in assistant_msg.tool_calls:
         fn_name = tool_call.function.name
         raw_args = tool_call.function.arguments or "{}"
@@ -179,25 +179,25 @@ else:
 
         target = tool_mapping.get(fn_name)
         if not target:
-            tool_result: Any = f"ERROR: No implementation registered for tool '{fn_name}'"
+            tool_result: Any = f"ERROR: No hay implementación registrada para la tool '{fn_name}'"
         else:
-            # Parse arguments safely
+            # Parseo seguro de argumentos JSON
             try:
                 parsed_args = json.loads(raw_args) if raw_args.strip() else {}
             except json.JSONDecodeError:
                 parsed_args = {}
-                tool_result = "Warning: Malformed JSON arguments received; proceeding with empty args"
+                tool_result = "Warning: JSON arguments malformados; sigo con args vacíos"
             else:
                 try:
                     tool_result = target(**parsed_args)
                 except Exception as e:  # safeguard tool execution
-                    tool_result = f"Tool execution error in {fn_name}: {e}"
+                    tool_result = f"Error ejecutando la tool {fn_name}: {e}"
 
-        # Serialize tool output (dict or str) as JSON string for the model
+        # Serializa el output de la tool (dict o str) como JSON string para el model
         try:
             tool_content = json.dumps(tool_result)
         except Exception:
-            # Fallback to string conversion if something isn't JSON serializable
+            # Fallback a string si no se puede serializar a JSON
             tool_content = json.dumps({"result": str(tool_result)})
 
         messages.append(
@@ -209,7 +209,7 @@ else:
             }
         )
 
-    # Follow-up model response after supplying tool outputs
+    # Segunda respuesta del model después de dar los tool outputs
     followup = client.chat.completions.create(
         model=MODEL_NAME,
         messages=messages,
