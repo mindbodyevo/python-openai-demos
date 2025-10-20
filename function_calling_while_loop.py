@@ -124,6 +124,7 @@ messages = [
 print(f"Model: {MODEL_NAME} on Host: {API_HOST}\n")
 
 while True:
+    print("Calling model...\n")
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=messages,  # includes prior tool outputs

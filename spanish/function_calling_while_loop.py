@@ -109,6 +109,7 @@ messages: list[dict[str, Any]] = [
 print(f"Modelo: {MODEL_NAME} en Host: {API_HOST}\n")
 
 while True:
+    print("Invocando el modelo...\n")
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=messages,

@@ -101,7 +101,7 @@ messages: list[dict[str, Any]] = [
                 "type": "function",
                 "function": {"name": "search_database", "arguments": '{"search_query":"climbing gear outside"}'},
             }
-        ]
+        ],
     },
     {
         "role": "tool",
