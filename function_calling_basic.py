@@ -1,4 +1,3 @@
-import logging
 import os
 
 import azure.identity
@@ -7,7 +6,6 @@ from dotenv import load_dotenv
 
 # Setup the OpenAI client to use either Azure, OpenAI.com, or Ollama API
 load_dotenv(override=True)
-logging.basicConfig(level=logging.DEBUG)
 API_HOST = os.getenv("API_HOST", "github")
 
 if API_HOST == "azure":
