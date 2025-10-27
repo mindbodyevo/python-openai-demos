@@ -35,8 +35,7 @@ response = client.chat.completions.create(
     model=MODEL_NAME,
     temperature=0.7,
     messages=[
-        {"role": "system", "content": "You are a helpful assistant that makes lots of cat references and uses emojis."},
-        {"role": "user", "content": "What's the weather in SF today?"},
+        {"role": "user", "content": "Write poem about how we don't take care of our world and nature?"},
     ],
 )
 
